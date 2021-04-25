@@ -103,3 +103,14 @@ USE BluePrint
 	INNER JOIN Tareas T ON M.ID = T.IDModulo
 	INNER JOIN Colaboraciones COL ON T.ID = COL.IDTarea
 	GROUP BY P.Nombre
+
+-- 16- Listar los nombres de los proyectos que hayan registrado menos de cinco colaboradores distintos y más de 100 horas total de trabajo.
+	SELECT P.Nombre
+	FROM Proyectos P INNER JOIN Modulos M ON P.ID = M.IDProyecto
+	LEFT JOIN Tareas T ON M.ID = T.IDModulo
+	LEFT JOIN Colaboraciones COL ON T.ID = COL.IDTarea
+	LEFT JOIN Colaboradores C ON COL.IDColaborador = C.ID
+	GROUP BY P.Nombre
+	HAVING COUNT(C.ID) < 5 AND SUM(COL.Tiempo) > 100
+
+-- 17- 
