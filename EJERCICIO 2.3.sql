@@ -113,4 +113,57 @@ USE BluePrint
 	GROUP BY P.Nombre
 	HAVING COUNT(C.ID) < 5 AND SUM(COL.Tiempo) > 100
 
--- 17- 
+-- 17- Listar los nombres de los proyectos que hayan comenzado en el año 2020 que hayan registrado más de tres módulos.
+	SELECT P.Nombre
+	FROM Proyectos P INNER JOIN Modulos M ON P.ID = M.IDProyecto
+	GROUP BY P.Nombre
+	HAVING COUNT(M.ID) > 3
+
+-- 18- Listar para cada colaborador externo, el apellido y nombres y el tiempo máximo de horas que ha trabajo en una colaboración.
+	SELECT C.Apellido, C.Nombre, MAX(COL.Tiempo) AS 'MAYOR TIEMPO TRABAJADO'
+	FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+	WHERE C.Tipo LIKE 'E'
+	GROUP BY C.Apellido, C.Nombre
+	
+-- 19- Listar para cada colaborador interno, el apellido y nombres y el promedio percibido en concepto de colaboraciones.
+	SELECT C.Apellido, C.Nombre, AVG(COL.Tiempo*COL.PrecioHora)
+	FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+	WHERE C.Tipo LIKE 'I'
+	GROUP BY C.Apellido, C.Nombre
+
+-- 20- Listar el promedio percibido en concepto de colaboraciones para colaboradores internos y el promedio percibido en concepto de colaboraciones para colaboradores externos.
+	SELECT C.Tipo, AVG(COL.Tiempo*COL.PrecioHora)
+	FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+	GROUP BY C.Tipo
+
+-- 21- Listar el nombre del proyecto y el total neto estimado. Este último valor surge del costo estimado menos los pagos que requiera hacer en concepto de colaboraciones.
+	SELECT P.Nombre, P.CostoEstimado - SUM(COL.PrecioHora*COL.Tiempo) AS 'COSTO NETO'
+	FROM Proyectos P INNER JOIN Modulos M ON P.ID = M.IDProyecto
+	INNER JOIN Tareas T ON M.ID = T.IDModulo
+	INNER JOIN Colaboraciones COL ON T.ID = COL.IDTarea
+	GROUP BY P.Nombre, P.CostoEstimado
+
+-- 22- Listar la cantidad de colaboradores distintos que hayan colaborado en alguna tarea que correspondan a proyectos de clientes de tipo 'Unicornio'
+	SELECT  COUNT(DISTINCT C.ID)
+	FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+	INNER JOIN Tareas T ON COL.IDTarea = T.ID
+	INNER JOIN Modulos M ON T.IDModulo = M.ID
+	INNER JOIN Proyectos P ON M.IDProyecto = P.ID
+	INNER JOIN Clientes CL ON P.IDCliente = CL.ID
+	INNER JOIN TiposCliente TC ON CL.IDTipo = TC.ID
+	WHERE TC.Nombre LIKE 'Unicornio' 
+
+-- 23- La cantidad de tareas realizadas por colaboradores del país 'Argentina'.
+	SELECT COUNT(DISTINCT T.ID)
+	FROM Tareas T INNER JOIN Colaboraciones COL ON T.ID = COL.IDTarea
+	INNER JOIN Colaboradores C ON COL.IDColaborador = C.ID
+	INNER JOIN Ciudades CI ON C.IDCiudad = CI.ID
+	INNER JOIN Paises P ON CI.IDPais = P.ID
+	WHERE P.Nombre LIKE 'Argentina'
+
+-- 24- Por cada proyecto, la cantidad de módulos que se haya estimado mal la fecha de fin. Es decir, que se haya finalizado antes o después que la fecha estimada. Indicar el nombre del proyecto y la cantidad calculada.
+	SELECT P.Nombre, COUNT(M.ID)
+	FROM Proyectos P INNER JOIN Modulos M ON P.ID = M.IDProyecto
+	WHERE M.FechaEstimadaFin > M.FechaFin OR M.FechaEstimadaFin < M.FechaFin
+	GROUP BY P.Nombre
+	ORDER BY COUNT(M.ID) DESC
