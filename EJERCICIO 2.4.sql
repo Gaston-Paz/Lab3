@@ -22,22 +22,17 @@ USE BluePrint
 	)
 
 -- 5- Listado de tipos de tareas que no registren tareas pendientes.
-	/*SELECT TT.ID, TT.NOMBRE, TT.PrecioHoraBase FROM TiposTarea TT
-	WHERE TT.ID NOT IN (
-	SELECT DISTINCT T.IDTipo FROM Tareas T
-	INNER JOIN Colaboraciones COL ON T.ID = COL.IDTarea
-	WHERE COL.Estado LIKE (0)
-	)*/
 
--- 6- Listado con ID, nombre y costo estimado de proyectos cuyo costo estimado sea menor al costo estimado de cualquier proyecto de clientes extranjeros (clientes que no sean de Argentina o no tengan asociado un país).
-	/*SELECT P.ID, P.Nombre, P.CostoEstimado
+
+-- 6- Listado con ID, nombre y costo estimado de proyectos cuyo costo estimado sea menor al costo estimado de cualquier proyecto de clientes extranjeros (clientes que sean de Argentina o no tengan asociado un país).
+	SELECT P.ID, P.Nombre, P.CostoEstimado
 	FROM Proyectos P
-	WHERE P.CostoEstimado < ALL (
-	SELECT MAX(P.CostoEstimado)
-	FROM Proyectos P LEFT JOIN Clientes CL ON P.IDCliente = CL.ID
+	WHERE P.CostoEstimado < (
+	SELECT DISTINCT MIN(P.CostoEstimado)
+	FROM Proyectos P INNER JOIN Clientes CL ON P.IDCliente = CL.ID
 	LEFT JOIN Ciudades C ON CL.IDCiudad = C.ID
 	LEFT JOIN Paises PA ON C.IDPais = PA.ID
-	WHERE PA.Nombre NOT LIKE 'Argentina' OR CL.IDCiudad IS NULL)*/
+	WHERE PA.Nombre = 'Argentina' OR CL.IDCiudad IS NULL)
 
 -- 7- Listado de apellido y nombres de colaboradores que hayan demorado más en una tarea que el colaborador de la ciudad de 'Buenos Aires' que más haya demorado.
 	SELECT C.Apellido, C.Nombre
