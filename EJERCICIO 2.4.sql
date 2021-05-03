@@ -22,7 +22,12 @@ USE BluePrint
 	)
 
 -- 5- Listado de tipos de tareas que no registren tareas pendientes.
-
+	SELECT TT.ID, TT.Nombre, TT.PrecioHoraBase
+	FROM TiposTarea TT
+	WHERE TT.ID NOT IN(
+	SELECT T.IDTipo FROM Tareas T
+	WHERE T.FechaInicio > GETDATE() OR T.FechaInicio IS NULL
+	)
 
 -- 6- Listado con ID, nombre y costo estimado de proyectos cuyo costo estimado sea menor al costo estimado de cualquier proyecto de clientes extranjeros (clientes que sean de Argentina o no tengan asociado un país).
 	SELECT P.ID, P.Nombre, P.CostoEstimado
