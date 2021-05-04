@@ -144,3 +144,25 @@
 			FROM Proyectos P
 	) AS T1
 	INNER JOIN Clientes CL ON T1.IDCliente = CL.ID
+
+-- 13- Para cada módulo listar el nombre del proyecto, el nombre del módulo, el total en tiempo que demoraron las tareas de ese módulo y 
+--	   qué porcentaje de tiempo representaron las tareas de ese módulo en relación al tiempo total de tareas del proyecto.
+	SELECT P.Nombre, MO.Nombre,
+	(	SELECT ISNULL(SUM(COL.Tiempo),0)
+		FROM Modulos M INNER JOIN Tareas T ON M.ID = T.IDModulo
+		INNER JOIN Colaboraciones COL ON T.ID = COL.IDTarea
+		WHERE M.ID = MO.ID)  AS 'HORAS POR TAREA',
+	ISNULL((
+		(SELECT ISNULL(SUM(COL.Tiempo),'0')
+		FROM Modulos M INNER JOIN Tareas T ON M.ID = T.IDModulo
+		INNER JOIN Colaboraciones COL ON T.ID = COL.IDTarea
+		WHERE M.ID = MO.ID) * 100 /
+		(SELECT SUM(COL.Tiempo)
+		FROM Proyectos P INNER JOIN Modulos M ON P.ID = M.IDProyecto
+		INNER JOIN Tareas T ON M.ID = T.IDModulo
+		INNER JOIN Colaboraciones COL ON T.ID = COL.IDTarea
+		WHERE P.ID = MO.IDProyecto)
+	),0)
+	FROM Modulos MO INNER JOIN Proyectos P ON MO.IDProyecto = P.ID
+
+	
