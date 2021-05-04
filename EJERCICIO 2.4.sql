@@ -100,3 +100,21 @@
 		WHERE M.FechaFin > M.FechaEstimadaFin AND M.IDProyecto = P.ID
 	) AS 'MODULOS DEMORADOS'
 	FROM Proyectos P
+
+-- 11- Listado con nombre del tipo de tarea y total abonado en concepto de honorarios para colaboradores internos y total abonado en concepto de honorarios para colaboradores externos.
+	SELECT TT.Nombre,
+	(
+		SELECT SUM(COL.Tiempo*COL.PrecioHora)
+		FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+		INNER JOIN Tareas TA ON COL.IDTarea = TA.ID
+		INNER JOIN TiposTarea T ON TA.IDTipo = T.ID
+		WHERE C.Tipo LIKE 'I' AND TT.ID = T.ID
+	) AS 'HONORARIOS INTERNOS',
+	(
+		SELECT SUM(COL.Tiempo*COL.PrecioHora)
+		FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+		INNER JOIN Tareas TA ON COL.IDTarea = TA.ID
+		INNER JOIN TiposTarea T ON TA.IDTipo = T.ID
+		WHERE C.Tipo LIKE 'E' AND TT.ID = T.ID
+	) AS 'HONORARIOS EXTERNOS'
+	FROM TiposTarea TT
