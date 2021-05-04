@@ -118,3 +118,29 @@
 		WHERE C.Tipo LIKE 'E' AND TT.ID = T.ID
 	) AS 'HONORARIOS EXTERNOS'
 	FROM TiposTarea TT
+
+-- 12- Listado con nombre del proyecto, razón social del cliente y saldo final del proyecto. El saldo final surge de la siguiente fórmula: 
+--	   Costo estimado - Σ(HCE) - Σ(HCI) * 0.1
+--	   Siendo HCE → Honorarios de colaboradores externos y HCI → Honorarios de colaboradores internos
+		SELECT T1.Nombre, CL.RazonSocial, T1.CostoEstimado - T1.[HONORARIOS EXTERNOS] - (T1.[HONORARIOS INTERNOS]*0.1) AS 'SALDO FINAL'
+		FROM(	
+			SELECT P.Nombre, P.IDCliente, P.CostoEstimado ,
+			(
+				SELECT ISNULL(SUM(COL.Tiempo*COL.PrecioHora),0)
+				FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+				INNER JOIN Tareas TA ON COL.IDTarea = TA.ID
+				INNER JOIN Modulos M ON TA.IDModulo = M.ID
+				INNER JOIN Proyectos PR ON M.IDProyecto = PR.ID
+				WHERE C.Tipo LIKE 'I' AND P.ID = PR.ID
+			) AS 'HONORARIOS INTERNOS',
+			(
+				SELECT ISNULL(SUM(COL.Tiempo*COL.PrecioHora),0)
+				FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+				INNER JOIN Tareas TA ON COL.IDTarea = TA.ID
+				INNER JOIN Modulos M ON TA.IDModulo = M.ID
+				INNER JOIN Proyectos PR ON M.IDProyecto = PR.ID
+				WHERE C.Tipo LIKE 'E' AND P.ID = PR.ID
+			) AS 'HONORARIOS EXTERNOS'
+			FROM Proyectos P
+	) AS T1
+	INNER JOIN Clientes CL ON T1.IDCliente = CL.ID
