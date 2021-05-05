@@ -264,3 +264,24 @@
 	) AS 'HONORARIOS EXTERNOS'
 	FROM TiposTarea TT) T1
 	WHERE T1.[HONORARIOS INTERNOS] > T1.[HONORARIOS EXTERNOS] *4
+
+-- 20- Listar los proyectos que hayan registrado igual cantidad de estimaciones demoradas que adelantadas y que al menos hayan 
+--	   registrado alguna estimación adelantada y que no hayan registrado ninguna estimación exacta.
+	SELECT T1.Nombre
+	FROM (	
+			SELECT PR.Nombre, 
+			(
+				SELECT COUNT(M.ID)
+				FROM Proyectos P INNER JOIN Modulos M ON P.ID = M.IDProyecto
+				WHERE M.FechaEstimadaFin > M.FechaFin AND PR.ID = P.ID
+			)AS 'ESTIMACIONES DEMORADAS',
+			(
+				SELECT COUNT(M.ID)
+				FROM Proyectos P INNER JOIN Modulos M ON P.ID = M.IDProyecto
+				WHERE M.FechaEstimadaFin < M.FechaFin AND PR.ID = P.ID
+			
+			) AS 'ESTIMACIONES ADELANTADAS'
+			FROM Proyectos PR 
+	) T1
+	WHERE T1.[ESTIMACIONES ADELANTADAS] = T1.[ESTIMACIONES DEMORADAS] AND T1.[ESTIMACIONES ADELANTADAS] > 0
+
