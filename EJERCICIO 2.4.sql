@@ -205,3 +205,22 @@
 		WHERE PA.ID = CI.IDPais
 	) AS 'CANTIDAD DE COLABORADORES' 
 	FROM Paises PA
+
+-- 17- Listar por cada país el nombre, la cantidad de clientes y la cantidad de colaboradores de aquellos países que no tengan clientes pero sí colaboradores.
+	SELECT T1.Nombre, T1.[CANTIDAD DE CLIENTES],
+	CASE
+	WHEN T1.[CANTIDAD DE CLIENTES] = 0 THEN T1.[CANTIDAD DE COLABORADORES]
+	END AS 'COLABORADORES DE PAISES SIN CLIENTES'
+	FROM (	SELECT PA.Nombre, 
+	(
+		SELECT COUNT(CL.ID)
+		FROM Clientes CL INNER JOIN Ciudades CI ON CL.IDCiudad = CI.ID
+		WHERE PA.ID = CI.IDPais
+	) AS 'CANTIDAD DE CLIENTES',
+	(
+		SELECT COUNT(CO.ID)
+		FROM Colaboradores CO INNER JOIN Ciudades CI ON CO.IDCiudad = CI.ID
+		WHERE PA.ID = CI.IDPais
+	) AS 'CANTIDAD DE COLABORADORES' 
+	FROM Paises PA) AS T1
+	WHERE T1.[CANTIDAD DE CLIENTES] = 0 AND T1.[CANTIDAD DE COLABORADORES] > 0
