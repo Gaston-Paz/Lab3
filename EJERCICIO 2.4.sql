@@ -244,3 +244,23 @@
 	) AS'TAREAS DE PROGRAMACION'
 	FROM Colaboradores C) T1
 	WHERE T1.[TAREAS DE TESTING] > T1.[TAREAS DE PROGRAMACION]
+
+--	19- Listar los nombres de los tipos de tareas que hayan abonado más del cuádruple en colaboradores internos que externos
+	SELECT T1.Nombre
+	FROM (SELECT TT.Nombre,
+	(
+		SELECT SUM(COL.Tiempo*COL.PrecioHora)
+		FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+		INNER JOIN Tareas TA ON COL.IDTarea = TA.ID
+		INNER JOIN TiposTarea T ON TA.IDTipo = T.ID
+		WHERE C.Tipo LIKE 'I' AND TT.ID = T.ID
+	) AS 'HONORARIOS INTERNOS',
+	(
+		SELECT SUM(COL.Tiempo*COL.PrecioHora)
+		FROM Colaboradores C INNER JOIN Colaboraciones COL ON C.ID = COL.IDColaborador
+		INNER JOIN Tareas TA ON COL.IDTarea = TA.ID
+		INNER JOIN TiposTarea T ON TA.IDTipo = T.ID
+		WHERE C.Tipo LIKE 'E' AND TT.ID = T.ID
+	) AS 'HONORARIOS EXTERNOS'
+	FROM TiposTarea TT) T1
+	WHERE T1.[HONORARIOS INTERNOS] > T1.[HONORARIOS EXTERNOS] *4
