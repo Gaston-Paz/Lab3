@@ -224,3 +224,23 @@
 	) AS 'CANTIDAD DE COLABORADORES' 
 	FROM Paises PA) AS T1
 	WHERE T1.[CANTIDAD DE CLIENTES] = 0 AND T1.[CANTIDAD DE COLABORADORES] > 0
+
+-- 18- Listar apellidos y nombres de los colaboradores internos que hayan realizado más tareas de tipo 'Testing' que tareas de tipo 'Programación'.
+	SELECT T1.Nombre, T1.Apellido
+	FROM (SELECT C.Nombre, C.Apellido, C.Tipo,
+	(
+		SELECT COUNT(*)
+		FROM Colaboradores CO INNER JOIN Colaboraciones COL ON CO.ID = COL.IDColaborador
+		INNER JOIN Tareas T ON COL.IDTarea = T.ID
+		INNER JOIN TiposTarea TT ON T.IDTipo = TT.ID
+		WHERE TT.Nombre LIKE '%Testing%' AND C.ID = CO.ID
+	) AS'TAREAS DE TESTING',
+	(
+		SELECT COUNT(*)
+		FROM Colaboradores CO INNER JOIN Colaboraciones COL ON CO.ID = COL.IDColaborador
+		INNER JOIN Tareas T ON COL.IDTarea = T.ID
+		INNER JOIN TiposTarea TT ON T.IDTipo = TT.ID
+		WHERE TT.Nombre LIKE '%Programación%' AND C.ID = CO.ID
+	) AS'TAREAS DE PROGRAMACION'
+	FROM Colaboradores C) T1
+	WHERE T1.[TAREAS DE TESTING] > T1.[TAREAS DE PROGRAMACION]
