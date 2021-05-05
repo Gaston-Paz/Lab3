@@ -166,3 +166,30 @@
 	FROM Modulos MO INNER JOIN Proyectos P ON MO.IDProyecto = P.ID
 
 	
+-- 14- Por cada colaborador indicar el apellido, el nombre, 'Interno' o 'Externo' según su tipo y la cantidad de tareas de tipo 'Testing' que haya realizado y la cantidad de tareas de tipo 'Programación' que haya realizado.
+--     NOTA: Se consideran tareas de tipo 'Testing' a las tareas que contengan la palabra 'Testing' en su nombre. Ídem para Programación.
+	SELECT C.Nombre, C.Apellido, C.Tipo,
+	(
+		SELECT COUNT(*)
+		FROM Colaboradores CO INNER JOIN Colaboraciones COL ON CO.ID = COL.IDColaborador
+		INNER JOIN Tareas T ON COL.IDTarea = T.ID
+		INNER JOIN TiposTarea TT ON T.IDTipo = TT.ID
+		WHERE TT.Nombre LIKE '%Testing%' AND C.ID = CO.ID
+	) AS'TAREAS DE TESTING',
+	(
+		SELECT COUNT(*)
+		FROM Colaboradores CO INNER JOIN Colaboraciones COL ON CO.ID = COL.IDColaborador
+		INNER JOIN Tareas T ON COL.IDTarea = T.ID
+		INNER JOIN TiposTarea TT ON T.IDTipo = TT.ID
+		WHERE TT.Nombre LIKE '%Programación%' AND C.ID = CO.ID
+	) AS'TAREAS DE PROGRAMACION'
+	FROM Colaboradores C
+
+-- 15- Listado apellido y nombres de los colaboradores que no hayan realizado tareas de 'Diseño de base de datos'.
+	SELECT CO.Nombre, CO.Apellido
+	FROM Colaboradores CO
+	WHERE CO.ID NOT IN (SELECT COL.IDColaborador  FROM Colaboraciones COL INNER JOIN Tareas T ON COL.IDTarea = T.ID
+						INNER JOIN TiposTarea TT ON T.IDTipo = TT.ID	
+						WHERE TT.Nombre LIKE 'Diseño de base de datos')
+
+-- 16- 
