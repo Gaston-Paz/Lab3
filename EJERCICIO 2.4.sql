@@ -192,4 +192,16 @@
 						INNER JOIN TiposTarea TT ON T.IDTipo = TT.ID	
 						WHERE TT.Nombre LIKE 'Diseño de base de datos')
 
--- 16- 
+-- 16- Por cada país listar el nombre, la cantidad de clientes y la cantidad de colaboradores.
+	SELECT PA.Nombre, 
+	(
+		SELECT COUNT(CL.ID)
+		FROM Clientes CL INNER JOIN Ciudades CI ON CL.IDCiudad = CI.ID
+		WHERE PA.ID = CI.IDPais
+	) AS 'CANTIDAD DE CLIENTES',
+	(
+		SELECT COUNT(CO.ID)
+		FROM Colaboradores CO INNER JOIN Ciudades CI ON CO.IDCiudad = CI.ID
+		WHERE PA.ID = CI.IDPais
+	) AS 'CANTIDAD DE COLABORADORES' 
+	FROM Paises PA
