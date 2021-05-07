@@ -53,3 +53,12 @@ USE BluePrint
 	WHERE COL.Tipo LIKE 'I'
 	GROUP BY TT.Nombre) T1
 	WHERE T1.[PROMEDIO DE HS EXTERNOS] > T1.[PROMEDIO DE HS INTERNOS]
+
+-- 6- El nombre de proyecto que más colaboradores distintos haya empleado.
+	SELECT TOP 1 COUNT(DISTINCT COL.IDColaborador), P.Nombre
+	FROM Proyectos P INNER JOIN Modulos M ON P.ID = M.IDProyecto
+	INNER JOIN Tareas T ON M.ID = T.IDModulo
+	INNER JOIN Colaboraciones COL ON T.ID = COL.IDTarea
+	GROUP BY P.Nombre
+	ORDER BY (1) DESC
+	
