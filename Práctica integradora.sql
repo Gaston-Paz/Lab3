@@ -1,4 +1,4 @@
-USE BluePrint
+ÔªøUSE BluePrint
 
 -- 1- Por cada colaborador listar el apellido y nombre y la cantidad de proyectos distintos en los que haya trabajado.
 	SELECT COL.Nombre, COL.Apellido, COUNT(M.IDProyecto) AS 'PROYECTOS TRABAJADOS'
@@ -7,7 +7,7 @@ USE BluePrint
 	INNER JOIN Modulos M ON T.IDModulo = M.ID
 	GROUP BY COL.Nombre, COL.Apellido
 
--- 2- Por cada cliente, listar la razÛn social y el costo estimado del mÛdulo m·s costoso que haya solicitado.
+-- 2- Por cada cliente, listar la raz√≥n social y el costo estimado del m√≥dulo m√°s costoso que haya solicitado.
 	SELECT CL.RazonSocial, 
 	(
 		SELECT MAX(M.CostoEstimado)
@@ -17,14 +17,14 @@ USE BluePrint
 	) AS 'COSTO DE MODULO MAS COSTOSO'
 	FROM Clientes CL
 
--- 3- Los nombres de los tipos de tareas que hayan registrado m·s de diez colaboradores distintos en el aÒo 2020. 
+-- 3- Los nombres de los tipos de tareas que hayan registrado m√°s de diez colaboradores distintos en el a√±o 2020. 
 	SELECT TT.Nombre
 	FROM TiposTarea TT
 	WHERE 10 < (SELECT COUNT(DISTINCT COL.ID) FROM Colaboradores COL INNER JOIN Colaboraciones COLA ON COL.ID = COLA.IDColaborador
 				INNER JOIN Tareas T ON COLA.IDTarea = T.ID
 				WHERE TT.ID = T.IDTipo AND YEAR(T.FechaInicio) = '2020')
 
--- 4- Por cada cliente listar la razÛn social y el promedio abonado en concepto de proyectos. Si no tiene proyectos asociados mostrar el cliente con promedio nulo.
+-- 4- Por cada cliente listar la raz√≥n social y el promedio abonado en concepto de proyectos. Si no tiene proyectos asociados mostrar el cliente con promedio nulo.
 	SELECT CL.RazonSocial, (
 								SELECT SUM(COLA.PrecioHora*COLA.Tiempo)
 								FROM Clientes C INNER JOIN Proyectos PR ON C.ID = PR.IDCliente
@@ -36,7 +36,7 @@ USE BluePrint
 														WHERE CLI.ID = CL.ID) AS 'PROMEDIO ABONADO EN PROYECTOS'
 	FROM Clientes CL INNER JOIN Proyectos P ON CL.ID = P.IDCliente
 
--- 5- Los nombres de los tipos de tareas que hayan promediado m·s horas de colaboradores externos que internos.
+-- 5- Los nombres de los tipos de tareas que hayan promediado m√°s horas de colaboradores externos que internos.
 	SELECT T1.Nombre
 	FROM(
 	SELECT TT.Nombre, AVG(COLA.Tiempo) AS 'PROMEDIO DE HS INTERNOS',
@@ -54,7 +54,7 @@ USE BluePrint
 	GROUP BY TT.Nombre) T1
 	WHERE T1.[PROMEDIO DE HS EXTERNOS] > T1.[PROMEDIO DE HS INTERNOS]
 
--- 6- El nombre de proyecto que m·s colaboradores distintos haya empleado.
+-- 6- El nombre de proyecto que m√°s colaboradores distintos haya empleado.
 	SELECT TOP 1 COUNT(DISTINCT COL.IDColaborador), P.Nombre
 	FROM Proyectos P INNER JOIN Modulos M ON P.ID = M.IDProyecto
 	INNER JOIN Tareas T ON M.ID = T.IDModulo
@@ -62,7 +62,7 @@ USE BluePrint
 	GROUP BY P.Nombre
 	ORDER BY (1) DESC
 	
--- 7- Por cada colaborador, listar el apellido y nombres y la cantidad de horas trabajadas en el aÒo 2018, la cantidad de horas trabajadas en 2019 y la cantidad de horas trabajadas en 2020
+-- 7- Por cada colaborador, listar el apellido y nombres y la cantidad de horas trabajadas en el a√±o 2018, la cantidad de horas trabajadas en 2019 y la cantidad de horas trabajadas en 2020
 	SELECT COL.Nombre, 
 	ISNULL((
 		SELECT SUM(COLA.Tiempo)
@@ -84,7 +84,7 @@ USE BluePrint
 	),0) AS 'HS 2020'
 	FROM Colaboradores COL
 
--- 8- Los apellidos y nombres de los colaboradores que hayan trabajado m·s horas en 2018 que en 2019 y m·s horas en 2019 que en 2020.
+-- 8- Los apellidos y nombres de los colaboradores que hayan trabajado m√°s horas en 2018 que en 2019 y m√°s horas en 2019 que en 2020.
 	SELECT T1.Nombre, T1.Apellido
 	FROM (SELECT COL.Nombre,COL.Apellido, 
 	ISNULL((
@@ -121,3 +121,22 @@ USE BluePrint
 						INNER JOIN Ciudades CI ON CL.IDCiudad = CI.ID
 						INNER JOIN Paises PA ON CI.IDPais = PA.ID
 						WHERE PA.Nombre LIKE 'Argentina')
+
+-- 10- Por cada tipo de tarea listar el nombre, el precio de hora base y el promedio de valor hora real (obtenido de las colaboraciones). Tambi√©n, una columna llamada Variaci√≥n con las siguientes reglas:
+--	Poca ‚Üí Si la diferencia entre el promedio y el precio de hora base es menor a $500.
+--	Mediana ‚Üí Si la diferencia entre el promedio y el precio de hora base est√° entre $501 y $999.
+--	Alta ‚Üí Si la diferencia entre el promedio y el precio de hora base es $1000 o m√°s.
+	SELECT T1.Nombre, T1.PrecioHoraBase, T1.PROMEDIO,
+	CASE
+	WHEN T1.PROMEDIO - T1.PrecioHoraBase < 500 THEN 'POCA'
+	WHEN T1.PROMEDIO - T1.PrecioHoraBase BETWEEN '500' AND '999' THEN 'MEDIANA'
+	WHEN  T1.PROMEDIO - T1.PrecioHoraBase > 999 THEN 'ALTA'
+	END AS 'Variaci√≥n'
+	FROM (
+	SELECT TT.Nombre, TT.PrecioHoraBase, AVG(COL.PrecioHora) AS PROMEDIO
+	FROM TiposTarea TT INNER JOIN Tareas T ON TT.ID = T.IDTipo
+	INNER JOIN Colaboraciones COL ON T.ID = COL.IDTarea
+	GROUP BY TT.Nombre, TT.PrecioHoraBase
+	
+	) T1
+	ORDER BY (1) ASC
