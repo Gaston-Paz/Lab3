@@ -23,3 +23,16 @@ USE BluePrint
 	WHERE 10 < (SELECT COUNT(DISTINCT COL.ID) FROM Colaboradores COL INNER JOIN Colaboraciones COLA ON COL.ID = COLA.IDColaborador
 				INNER JOIN Tareas T ON COLA.IDTarea = T.ID
 				WHERE TT.ID = T.IDTipo AND YEAR(T.FechaInicio) = '2020')
+
+-- 4- Por cada cliente listar la razón social y el promedio abonado en concepto de proyectos. Si no tiene proyectos asociados mostrar el cliente con promedio nulo.
+	SELECT CL.RazonSocial, (
+								SELECT SUM(COLA.PrecioHora*COLA.Tiempo)
+								FROM Clientes C INNER JOIN Proyectos PR ON C.ID = PR.IDCliente
+								INNER JOIN Modulos M ON PR.ID = M.IDProyecto
+								INNER JOIN Tareas T ON M.ID = T.IDModulo
+								INNER JOIN Colaboraciones COLA ON T.ID = COLA.IDTarea
+								WHERE CL.ID = C.ID) / (SELECT ISNULL(COUNT(P.ID),0)
+														FROM Clientes CLI LEFT JOIN Proyectos P ON CLI.ID = P.IDCliente
+														WHERE CLI.ID = CL.ID) AS 'PROMEDIO ABONADO EN PROYECTOS'
+	FROM Clientes CL INNER JOIN Proyectos P ON CL.ID = P.IDCliente
+
