@@ -62,3 +62,24 @@ USE BluePrint
 	GROUP BY P.Nombre
 	ORDER BY (1) DESC
 	
+-- 7- Por cada colaborador, listar el apellido y nombres y la cantidad de horas trabajadas en el año 2018, la cantidad de horas trabajadas en 2019 y la cantidad de horas trabajadas en 2020
+	SELECT COL.Nombre, 
+	ISNULL((
+		SELECT SUM(COLA.Tiempo)
+		FROM Colaboradores C INNER JOIN Colaboraciones COLA ON C.ID = COLA.IDColaborador
+		INNER JOIN Tareas T ON COLA.IDTarea = T.ID
+		WHERE COL.ID = C.ID AND YEAR(T.FechaInicio) LIKE '2018'
+	),0) AS 'HS 2018', 
+	ISNULL((
+		SELECT SUM(COLA.Tiempo)
+		FROM Colaboradores C INNER JOIN Colaboraciones COLA ON C.ID = COLA.IDColaborador
+		INNER JOIN Tareas T ON COLA.IDTarea = T.ID
+		WHERE COL.ID = C.ID AND YEAR(T.FechaFin) LIKE '2019'
+	),0) AS 'HS 2019', 
+	ISNULL((
+		SELECT SUM(COLA.Tiempo)
+		FROM Colaboradores C INNER JOIN Colaboraciones COLA ON C.ID = COLA.IDColaborador
+		INNER JOIN Tareas T ON COLA.IDTarea = T.ID
+		WHERE COL.ID = C.ID AND YEAR(T.FechaFin) LIKE '2020'
+	),0) AS 'HS 2020'
+	FROM Colaboradores COL
