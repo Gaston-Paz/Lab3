@@ -16,3 +16,10 @@ USE BluePrint
 		WHERE C.ID = CL.ID
 	) AS 'COSTO DE MODULO MAS COSTOSO'
 	FROM Clientes CL
+
+-- 3- Los nombres de los tipos de tareas que hayan registrado más de diez colaboradores distintos en el año 2020. 
+	SELECT TT.Nombre
+	FROM TiposTarea TT
+	WHERE 10 < (SELECT COUNT(DISTINCT COL.ID) FROM Colaboradores COL INNER JOIN Colaboraciones COLA ON COL.ID = COLA.IDColaborador
+				INNER JOIN Tareas T ON COLA.IDTarea = T.ID
+				WHERE TT.ID = T.IDTipo AND YEAR(T.FechaInicio) = '2020')
