@@ -107,3 +107,17 @@ USE BluePrint
 	),0) AS 'HS 2020'
 	FROM Colaboradores COL) T1
 	WHERE T1.[HS 2018] > T1.[HS 2019] AND T1.[HS 2019] > T1.[HS 2020]
+
+-- 9- Los apellidos y nombres de los colaboradores que nunca hayan trabajado en un proyecto contratado por un cliente extranjero.
+	SELECT COL.Apellido, COL.Nombre
+	FROM Colaboradores COL
+	WHERE COL.ID NOT IN (
+						SELECT CO.ID
+						FROM Colaboradores CO INNER JOIN Colaboraciones COLA ON CO.ID = COLA.IDColaborador
+						INNER JOIN Tareas T ON COLA.IDTarea = T.ID
+						INNER JOIN Modulos M ON T.IDModulo = M.ID
+						INNER JOIN Proyectos P ON M.IDProyecto = P.ID
+						INNER JOIN Clientes CL ON P.IDCliente = CL.ID
+						INNER JOIN Ciudades CI ON CL.IDCiudad = CI.ID
+						INNER JOIN Paises PA ON CI.IDPais = PA.ID
+						WHERE PA.Nombre LIKE 'Argentina')
