@@ -83,3 +83,27 @@ USE BluePrint
 		WHERE COL.ID = C.ID AND YEAR(T.FechaFin) LIKE '2020'
 	),0) AS 'HS 2020'
 	FROM Colaboradores COL
+
+-- 8- Los apellidos y nombres de los colaboradores que hayan trabajado más horas en 2018 que en 2019 y más horas en 2019 que en 2020.
+	SELECT T1.Nombre, T1.Apellido
+	FROM (SELECT COL.Nombre,COL.Apellido, 
+	ISNULL((
+		SELECT SUM(COLA.Tiempo)
+		FROM Colaboradores C INNER JOIN Colaboraciones COLA ON C.ID = COLA.IDColaborador
+		INNER JOIN Tareas T ON COLA.IDTarea = T.ID
+		WHERE COL.ID = C.ID AND YEAR(T.FechaInicio) LIKE '2018'
+	),0) AS 'HS 2018', 
+	ISNULL((
+		SELECT SUM(COLA.Tiempo)
+		FROM Colaboradores C INNER JOIN Colaboraciones COLA ON C.ID = COLA.IDColaborador
+		INNER JOIN Tareas T ON COLA.IDTarea = T.ID
+		WHERE COL.ID = C.ID AND YEAR(T.FechaFin) LIKE '2019'
+	),0) AS 'HS 2019', 
+	ISNULL((
+		SELECT SUM(COLA.Tiempo)
+		FROM Colaboradores C INNER JOIN Colaboraciones COLA ON C.ID = COLA.IDColaborador
+		INNER JOIN Tareas T ON COLA.IDTarea = T.ID
+		WHERE COL.ID = C.ID AND YEAR(T.FechaFin) LIKE '2020'
+	),0) AS 'HS 2020'
+	FROM Colaboradores COL) T1
+	WHERE T1.[HS 2018] > T1.[HS 2019] AND T1.[HS 2019] > T1.[HS 2020]
