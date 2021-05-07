@@ -36,3 +36,20 @@ USE BluePrint
 														WHERE CLI.ID = CL.ID) AS 'PROMEDIO ABONADO EN PROYECTOS'
 	FROM Clientes CL INNER JOIN Proyectos P ON CL.ID = P.IDCliente
 
+-- 5- Los nombres de los tipos de tareas que hayan promediado más horas de colaboradores externos que internos.
+	SELECT T1.Nombre
+	FROM(
+	SELECT TT.Nombre, AVG(COLA.Tiempo) AS 'PROMEDIO DE HS INTERNOS',
+	(
+		SELECT AVG(COLA.TIEMPO)
+		FROM TiposTarea TITA INNER JOIN Tareas T ON TITA.ID = T.IDTipo
+		INNER JOIN Colaboraciones COLA ON T.ID = COLA.IDTarea
+		INNER JOIN Colaboradores COL ON COLA.IDColaborador = COL.ID
+		WHERE COL.Tipo LIKE 'E' AND TT.Nombre = TITA.Nombre
+	) AS 'PROMEDIO DE HS EXTERNOS' 
+	FROM TiposTarea TT INNER JOIN Tareas T ON TT.ID = T.IDTipo
+	INNER JOIN Colaboraciones COLA ON T.ID = COLA.IDTarea
+	INNER JOIN Colaboradores COL ON COLA.IDColaborador = COL.ID
+	WHERE COL.Tipo LIKE 'I'
+	GROUP BY TT.Nombre) T1
+	WHERE T1.[PROMEDIO DE HS EXTERNOS] > T1.[PROMEDIO DE HS INTERNOS]
