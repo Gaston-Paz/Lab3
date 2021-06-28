@@ -111,7 +111,7 @@
 -- 9- Los apellidos y nombres de los colaboradores que nunca hayan trabajado en un proyecto contratado por un cliente extranjero.
 	SELECT COL.Apellido, COL.Nombre
 	FROM Colaboradores COL
-	WHERE COL.ID NOT IN (
+	WHERE COL.ID IN (
 						SELECT CO.ID
 						FROM Colaboradores CO INNER JOIN Colaboraciones COLA ON CO.ID = COLA.IDColaborador
 						INNER JOIN Tareas T ON COLA.IDTarea = T.ID
